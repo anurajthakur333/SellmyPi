@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+/* Blueprint custom styles */
+.bp5-navbar {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Layout styles */
+.page-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Remove default link styles from navbar buttons */
+a {
+  text-decoration: none;
+}
+
+/* Remove button outlines */
+.bp5-button {
+  outline: none !important;
+}
+.bp5-button:focus {
+  outline: none !important;
+}
+
+/* Ensure content has proper spacing */
+#root {
+  min-height: 100vh;
+}
