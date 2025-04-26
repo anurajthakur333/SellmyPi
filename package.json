@@ -14,7 +14,7 @@
     "@blueprintjs/icons": "^5.7.1",
     "@blueprintjs/popover2": "^2.1.30",
     "@blueprintjs/select": "^5.0.20",
-    "@clerk/clerk-react": "^5.29.0",
+    "@clerk/clerk-react": "^5.30.0",
     "@cloudinary/url-gen": "^1.21.0",
     "cloudinary-react": "^1.8.1",
     "cors": "^2.8.5",
