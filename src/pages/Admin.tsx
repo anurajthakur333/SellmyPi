@@ -1,30 +1,6 @@
-import React from 'react';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
-  Card,
-  H3,
-  Menu,
-  MenuItem,
-  InputGroup,
-  Button,
-  HTMLTable,
-  Spinner,
-  Tag,
-  Dialog,
-  NonIdealState,
-  Toaster,
-  Position,
-  Intent,
-  ButtonGroup,
-  Navbar,
-  NavbarGroup,
-  Alignment,
-  Popover,
-  Position as PopoverPosition,
-  Classes,
-  Icon,
-  H4,
-  Tooltip,
+  Card, H3, Menu, MenuItem, InputGroup, Button, HTMLTable, Spinner, Tag, Dialog, NonIdealState, Toaster, Position, Intent, ButtonGroup, Navbar, NavbarGroup, Alignment, Popover, Position as PopoverPosition, Classes, Icon, H4, Tooltip,
 } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 
@@ -87,6 +63,7 @@ export const AppToaster = Toaster.create({
 });
 
 export const Admin = () => {
+  // --- State ---
   const [selected, setSelected] = useState<"Dashboard" | "Orders" | "Users">("Dashboard");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [users, setUsers] = useState<ClerkUser[]>([]);
@@ -98,103 +75,35 @@ export const Admin = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage] = useState(10);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
-    totalOrders: 0,
-    totalUsers: 0,
-    totalPiVolume: 0,
-    totalUsdValue: 0,
-    totalInrValue: 0,
-    pendingOrders: 0,
-    completedOrders: 0,
-    rejectedOrders: 0,
+    totalOrders: 0, totalUsers: 0, totalPiVolume: 0, totalUsdValue: 0, totalInrValue: 0, pendingOrders: 0, completedOrders: 0, rejectedOrders: 0,
   });
   const [isDeleteOrderDialogOpen, setIsDeleteOrderDialogOpen] = useState<boolean>(false);
   const [orderToDelete, setOrderToDelete] = useState<Transaction | null>(null);
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState<boolean>(false);
   const [userToDelete, setUserToDelete] = useState<ClerkUser | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Initial data fetch
-  useEffect(() => {
-    const initialFetch = async () => {
-      setLoading(true);
-      try {
-        const txRes = await fetch("http://localhost:3000/api/transactions");
-        const txData: Transaction[] = await txRes.json();
-        setTransactions(txData);
-
-        // Calculate dashboard stats from all transactions
-        const stats: DashboardStats = {
-          totalOrders: txData.length,
-          totalUsers: new Set(txData.map(tx => tx.userInfo?.id).filter(Boolean)).size,
-          totalPiVolume: txData.filter(tx => tx.status === "completed")
-            .reduce((acc, tx) => acc + (tx.piAmount || 0), 0),
-          totalUsdValue: txData.filter(tx => tx.status === "completed")
-            .reduce((acc, tx) => acc + parseFloat(tx.usdValue || "0"), 0),
-          totalInrValue: txData.filter(tx => tx.status === "completed")
-            .reduce((acc, tx) => acc + parseFloat(tx.inrValue || "0"), 0),
-          pendingOrders: txData.filter(tx => tx.status === "pending" || !tx.status).length,
-          completedOrders: txData.filter(tx => tx.status === "completed").length,
-          rejectedOrders: txData.filter(tx => tx.status === "rejected").length,
-        };
-        setDashboardStats(stats);
-
-        // Process users with additional stats
-        const userMap = new Map<string, ClerkUser>();
-        txData.forEach((tx) => {
-          if (tx.userInfo?.id && !userMap.has(tx.userInfo.id)) {
-            const userTx = txData.filter(t => t.userInfo?.id === tx.userInfo?.id);
-            const userCompletedTx = userTx.filter(t => t.status === "completed");
-            userMap.set(tx.userInfo.id, {
-              id: tx.userInfo.id,
-              username: tx.userInfo.username || "Unknown",
-              email: tx.userInfo.email || "Unknown",
-              phone: tx.userInfo.phone || "Unknown",
-              status: tx.status || "Unknown",
-              totalOrders: userTx.length,
-              totalUsdValue: userCompletedTx.reduce((acc, t) => acc + parseFloat(t.usdValue || "0"), 0),
-            });
-          }
-        });
-
-        setUsers(Array.from(userMap.values()));
-      } catch (error) {
-        console.error("Error loading data:", error);
-        AppToaster.show({
-          message: "Failed to load data. Please try again.",
-          intent: Intent.DANGER,
-          icon: "error"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initialFetch();
-  }, []); // Empty dependency array for initial load only
-
-  const handleRefresh = async () => {
+  // --- Data Fetching & Processing ---
+  // Fetch transactions and users, and calculate dashboard stats
+  const fetchData = async () => {
     setLoading(true);
     try {
       const txRes = await fetch("http://localhost:3000/api/transactions");
       const txData: Transaction[] = await txRes.json();
       setTransactions(txData);
-
-      // Calculate dashboard stats from all transactions
+      // Calculate dashboard stats
       const stats: DashboardStats = {
         totalOrders: txData.length,
         totalUsers: new Set(txData.map(tx => tx.userInfo?.id).filter(Boolean)).size,
-        totalPiVolume: txData.filter(tx => tx.status === "completed")
-          .reduce((acc, tx) => acc + (tx.piAmount || 0), 0),
-        totalUsdValue: txData.filter(tx => tx.status === "completed")
-          .reduce((acc, tx) => acc + parseFloat(tx.usdValue || "0"), 0),
-        totalInrValue: txData.filter(tx => tx.status === "completed")
-          .reduce((acc, tx) => acc + parseFloat(tx.inrValue || "0"), 0),
+        totalPiVolume: txData.filter(tx => tx.status === "completed").reduce((acc, tx) => acc + (tx.piAmount || 0), 0),
+        totalUsdValue: txData.filter(tx => tx.status === "completed").reduce((acc, tx) => acc + parseFloat(tx.usdValue || "0"), 0),
+        totalInrValue: txData.filter(tx => tx.status === "completed").reduce((acc, tx) => acc + parseFloat(tx.inrValue || "0"), 0),
         pendingOrders: txData.filter(tx => tx.status === "pending" || !tx.status).length,
         completedOrders: txData.filter(tx => tx.status === "completed").length,
         rejectedOrders: txData.filter(tx => tx.status === "rejected").length,
       };
       setDashboardStats(stats);
-
-      // Process users with additional stats
+      // Process users
       const userMap = new Map<string, ClerkUser>();
       txData.forEach((tx) => {
         if (tx.userInfo?.id && !userMap.has(tx.userInfo.id)) {
@@ -211,17 +120,11 @@ export const Admin = () => {
           });
         }
       });
-
       setUsers(Array.from(userMap.values()));
-      AppToaster.show({
-        message: "Data refreshed successfully",
-        intent: Intent.SUCCESS,
-        icon: "tick"
-      });
     } catch (error) {
       console.error("Error loading data:", error);
       AppToaster.show({
-        message: "Failed to refresh data. Please try again.",
+        message: "Failed to load data. Please try again.",
         intent: Intent.DANGER,
         icon: "error"
       });
@@ -229,6 +132,16 @@ export const Admin = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => { fetchData(); }, []);
+
+  // Update lastUpdated on data fetch
+  useEffect(() => {
+    setLastUpdated(new Date());
+  }, [dashboardStats]);
+
+  // --- Handlers ---
+  const handleRefresh = fetchData;
 
   const handleStatusChange = async (txId: string, newStatus: Transaction["status"]) => {
     if (!newStatus) return;
@@ -463,72 +376,172 @@ export const Admin = () => {
     );
   };
 
+  const downloadAllData = () => {
+    const csvData = [
+      [
+        'Order ID', 'Username', 'Email', 'Phone', 'Pi Amount', 'USD Value', 'INR Value', 'UPI ID', 'Status', 'Created At', 'Sell Rate USD', 'Sell Rate INR'
+      ],
+      ...transactions.map(tx => [
+        tx._id,
+        tx.userInfo?.username || '',
+        tx.userInfo?.email || '',
+        tx.userInfo?.phone || '',
+        tx.piAmount,
+        tx.usdValue,
+        tx.inrValue,
+        tx.upiId,
+        tx.status,
+        tx.createdAt,
+        tx.SellRateUsd,
+        tx.SellRateInr
+      ])
+    ];
+    const csvString = csvData.map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `all_transactions_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+
+  const dashboardGridStyle = {
+    display: "grid",
+    alignItems: "start",
+    background: "#f5f8fa",
+    padding: "1rem 1rem 1rem 1rem",
+    maxWidth: "1500px",
+  };
+
+  const cardStyle: React.CSSProperties = {
+    padding: "1.5rem 1.25rem 1.5rem 1.25rem",
+    minHeight: "180px",
+    background: "#f9fafb",
+    border: "1px solid #e1e8ed",
+    borderRadius: "16px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "stretch",
+    transition: "box-shadow 0.2s, border-color 0.2s",
+  };
+
+  // Card hover effect (inline for simplicity)
+  const cardHoverStyle: React.CSSProperties = {
+    boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+    borderColor: "#b0bec5"
+  };
+
+  // Stat block style
+  const statBlockStyle: React.CSSProperties = {
+    padding: "1rem",
+    background: "#fff",
+    borderRadius: "10px",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "0.75rem",
+    fontWeight: 500,
+    fontSize: "1.1rem"
+  };
+
+  // Last stat block in card: remove margin
+  const lastStatBlockStyle: React.CSSProperties = {
+    ...statBlockStyle,
+    marginBottom: 0
+  };
+
+  const lastUpdatedStyle = {
+    gridColumn: "1/-1",
+    textAlign: "left" as const,
+    fontSize: 13,
+    margin: "0.5rem 0 0.5rem 0",
+    color: "#5C7080"
+  };
+
+  // --- Dashboard Render ---
   const renderDashboard = () => (
-    <div className="dashboard-container" style={{ display: "grid", gap: "1.5rem", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))" }}>
-      <Card elevation={2} style={{ padding: "1.25rem" }}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "1.5rem", justifyContent: "space-between" }}>
-          <Button  icon="chart" text="Orders Overview" />
-          <Tag round={true} large={true} intent="primary">{dashboardStats.totalOrders} Total</Tag>
+    <div className="dashboard-container" style={dashboardGridStyle}>
+      {/* Download All Data Button Row */}
+      <div style={{
+        gridColumn: "1/-1",
+        display: "flex",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        borderBottom: "1px solid #E1E8ED",
+        background: "none",
+        marginBottom: "1.5rem"
+      }}>
+        <Button icon="download" text="Download All Data" minimal onClick={downloadAllData} />
+        <div style={lastUpdatedStyle}>
+          Last Updated: {lastUpdated ? lastUpdated.toLocaleString() : "-"}
         </div>
-        <div className="stats-grid" style={{ display: "grid", gap: "0.75rem" }}>
-          <Card interactive={true} style={{ padding: "1rem", background: "rgba(255, 255, 255, 0.49)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      </div>
+      {/* Cards Row */}
+      <div style={{
+        gridColumn: "1/-1",
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        columnGap: "2rem",
+        rowGap: "2rem",
+        padding: "1rem 1rem 1rem 1rem",
+        justifyContent: "center"
+      }}>
+        {/* Orders Overview Card */}
+        <div style={{...cardStyle}} onMouseOver={e => (e.currentTarget.style.boxShadow = cardHoverStyle.boxShadow!)} onMouseOut={e => (e.currentTarget.style.boxShadow = cardStyle.boxShadow!)}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "1.5rem", justifyContent: "space-between" }}>
+            <Button icon="chart" text="Orders Overview" minimal />
+            <Tag large intent="primary">{dashboardStats.totalOrders} Total</Tag>
+          </div>
+          <div className="stats-grid">
+            <div style={statBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="calculator" size={20} />
                 <span>Total Orders</span>
               </div>
               <span style={{ fontSize: "1.25rem", fontWeight: "bold" }}>{dashboardStats.totalOrders}</span>
             </div>
-          </Card>
-          <Card interactive={true} elevation={1} style={{ padding: "1rem", background: "rgba(15, 153, 96, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={statBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="tick-circle" intent="success" size={20} />
                 <span>Completed</span>
               </div>
               <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#0F9960" }}>{dashboardStats.completedOrders}</span>
             </div>
-          </Card>
-          <Card interactive={true} elevation={1} style={{ padding: "1rem", background: "rgba(217, 130, 43, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={statBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="time" intent="warning" size={20} />
                 <span>Pending</span>
               </div>
               <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#D9822B" }}>{dashboardStats.pendingOrders}</span>
             </div>
-          </Card>
-          <Card interactive={true} elevation={1} style={{ padding: "1rem", background: "rgba(219, 55, 55, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={lastStatBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="cross-circle" intent="danger" size={20} />
                 <span>Rejected</span>
               </div>
               <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#DB3737" }}>{dashboardStats.rejectedOrders}</span>
             </div>
-          </Card>
+          </div>
         </div>
-      </Card>
-
-      <Card elevation={2} style={{ padding: "1.25rem" }}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "1.5rem", justifyContent: "space-between" }}>
-          <Button icon="bank-account" text="Transaction Values" />
-          <Tag round={true} large={true} intent="success">₹{dashboardStats.totalInrValue.toFixed(2)}</Tag>
-        </div>
-        <div className="stats-grid" style={{ display: "grid", gap: "0.75rem" }}>
-          <Card interactive={true} style={{ padding: "1rem", background: "rgba(15, 153, 96, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {/* Transaction Values Card */}
+        <div style={{...cardStyle}} onMouseOver={e => (e.currentTarget.style.boxShadow = cardHoverStyle.boxShadow!)} onMouseOut={e => (e.currentTarget.style.boxShadow = cardStyle.boxShadow!)}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "1.5rem", justifyContent: "space-between" }}>
+            <Button icon="bank-account" text="Transaction Values" minimal />
+            <Tag large intent="success">₹{dashboardStats.totalInrValue.toFixed(2)}</Tag>
+          </div>
+          <div className="stats-grid">
+            <div style={statBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="chart" intent="success" size={20} />
                 <span>Completed Pi</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#0F9960" }}>{dashboardStats.totalPiVolume.toFixed(2)}</span>
-              </div>
+              <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#0F9960" }}>{dashboardStats.totalPiVolume.toFixed(2)}</span>
             </div>
-          </Card>
-          <Card interactive={true} style={{ padding: "1rem", background: "rgba(15, 153, 96, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={statBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="dollar" intent="success" size={20} />
                 <span>Completed USD</span>
@@ -537,9 +550,7 @@ export const Admin = () => {
                 ${dashboardStats.totalUsdValue.toFixed(2)}
               </span>
             </div>
-          </Card>
-          <Card interactive={true} style={{ padding: "1rem", background: "rgba(15, 153, 96, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={lastStatBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="bank-account" intent="success" size={20} />
                 <span>Completed INR</span>
@@ -548,27 +559,23 @@ export const Admin = () => {
                 ₹{dashboardStats.totalInrValue.toFixed(2)}
               </span>
             </div>
-          </Card>
+          </div>
         </div>
-      </Card>
-
-      <Card elevation={2} style={{ padding: "1.25rem" }}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "1.5rem", justifyContent: "space-between" }}>
-          <Button icon="people" text="User Statistics" />
-          <Tag round={true} large={true} intent="warning">{dashboardStats.totalUsers} Users</Tag>
-        </div>
-        <div className="stats-grid" style={{ display: "grid", gap: "0.75rem" }}>
-          <Card interactive={true} elevation={1} style={{ padding: "1rem", background: "rgba(19, 124, 189, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {/* User Statistics Card */}
+        <div style={{...cardStyle}} onMouseOver={e => (e.currentTarget.style.boxShadow = cardHoverStyle.boxShadow!)} onMouseOut={e => (e.currentTarget.style.boxShadow = cardStyle.boxShadow!)}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "1.5rem", justifyContent: "space-between" }}>
+            <Button icon="people" text="User Statistics" minimal />
+            <Tag large intent="warning">{dashboardStats.totalUsers} Users</Tag>
+          </div>
+          <div className="stats-grid">
+            <div style={statBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="people" size={20} />
                 <span>Total Users</span>
               </div>
               <span style={{ fontSize: "1.25rem", fontWeight: "bold" }}>{dashboardStats.totalUsers}</span>
             </div>
-          </Card>
-          <Card interactive={true} elevation={1} style={{ padding: "1rem", background: "rgba(15, 153, 96, 0.05)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={lastStatBlockStyle}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <Icon icon="user" intent="success" size={20} />
                 <span>Active Users</span>
@@ -577,9 +584,9 @@ export const Admin = () => {
                 {users.filter(u => u.status === "Active").length}
               </span>
             </div>
-          </Card>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 
@@ -1979,7 +1986,8 @@ export const Admin = () => {
   );
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", }}>
+
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#697565"}}>
       <Navbar>
         <NavbarGroup style={{ gap: "10px" }}>
           <Button small={true} minimal={true} outlined={true} icon="grid-view" text="Dashboard" active={selected === "Dashboard"} onClick={() => setSelected("Dashboard")}/>
