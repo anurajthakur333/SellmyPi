@@ -155,104 +155,106 @@ export const Dashboard = () => {
           </div>
         ) : (
           <>
-            <HTMLTable interactive striped style={{ width: "100%" }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Date</th>
-                  <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Amount</th>
-                  <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Value</th>
-                  <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Rate</th>
-                  <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>UPI ID</th>
-                  <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Status</th>
-                  <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Proof</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentTransactions.map((transaction) => (
-                  <tr key={transaction._id}>
-                    <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                      <div style={{ display: "flex", flexDirection: "column" }}>
-                        <span style={{ fontWeight: 500, color: Colors.DARK_GRAY1 }}>
-                          {new Date(transaction.createdAt).toLocaleDateString("en-US", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric"
-                          })}
-                        </span>
-                        <span style={{ color: Colors.GRAY1, fontSize: "12px", marginTop: "2px" }}>
-                          {new Date(transaction.createdAt).toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true
-                          })}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Pi size={14} color={Colors.ORANGE3} />
-                        <span style={{ fontWeight: 500 }}>{transaction.piAmount}</span>
-                      </div>
-                    </td>
-
-                    <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <Icon icon="dollar" size={12} color={Colors.GREEN3} />
-                          <span>{transaction.usdValue}</span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <span style={{ color: Colors.GREEN3, fontSize: "14px", fontWeight: 500 }}>₹</span>
-                          <span>{transaction.inrValue}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px", color: Colors.GRAY1 }}>
-                          1π = ${transaction.SellRateUsd}
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px", color: Colors.GRAY1 }}>
-                          1π = ₹{transaction.SellRateInr}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Icon icon="credit-card" size={12} />
-                        <span>{transaction.upiId}</span>
-                      </div>
-                    </td>
-
-                    <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                      {renderStatusTag(transaction.status)}
-                    </td>
-
-                    <td style={{ padding: "12px 16px", verticalAlign: "middle", textAlign: "center"}}>
-                      <Button
-                        minimal
-                        intent={Intent.PRIMARY}
-                        style={{ 
-                          padding: "4px 8px",
-                          minHeight: "24px",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: "4px"
-                        }}
-                        onClick={() => window.open(transaction.imageUrl, "_blank")}
-                      >
-                        <Icon icon="document-open" size={14} />
-                        <span style={{ fontSize: "12px" }}> View</span>
-                      </Button>
-                    </td>
+            <div style={{ overflowX: "auto", width: "100%" }}>
+              <HTMLTable interactive striped style={{ width: "100%" }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Date</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Amount</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Value</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Rate</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>UPI ID</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Status</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Proof</th>
                   </tr>
-                ))}
-              </tbody>
-            </HTMLTable>
+                </thead>
+                <tbody>
+                  {currentTransactions.map((transaction) => (
+                    <tr key={transaction._id}>
+                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", flexDirection: "column" }}>
+                          <span style={{ fontWeight: 500, color: Colors.DARK_GRAY1 }}>
+                            {new Date(transaction.createdAt).toLocaleDateString("en-US", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric"
+                            })}
+                          </span>
+                          <span style={{ color: Colors.GRAY1, fontSize: "12px", marginTop: "2px" }}>
+                            {new Date(transaction.createdAt).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true
+                            })}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                          <Pi size={14} color={Colors.ORANGE3} />
+                          <span style={{ fontWeight: 500 }}>{transaction.piAmount}</span>
+                        </div>
+                      </td>
+
+                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <Icon icon="dollar" size={12} color={Colors.GREEN3} />
+                            <span>{transaction.usdValue}</span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <span style={{ color: Colors.GREEN3, fontSize: "14px", fontWeight: 500 }}>₹</span>
+                            <span>{transaction.inrValue}</span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px", color: Colors.GRAY1 }}>
+                            1π = ${transaction.SellRateUsd}
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px", color: Colors.GRAY1 }}>
+                            1π = ₹{transaction.SellRateInr}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                          <Icon icon="credit-card" size={12} />
+                          <span>{transaction.upiId}</span>
+                        </div>
+                      </td>
+
+                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
+                        {renderStatusTag(transaction.status)}
+                      </td>
+
+                      <td style={{ padding: "12px 16px", verticalAlign: "middle", textAlign: "center"}}>
+                        <Button
+                          minimal
+                          intent={Intent.PRIMARY}
+                          style={{ 
+                            padding: "4px 8px",
+                            minHeight: "24px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "4px"
+                          }}
+                          onClick={() => window.open(transaction.imageUrl, "_blank")}
+                        >
+                          <Icon icon="document-open" size={14} />
+                          <span style={{ fontSize: "12px" }}> View</span>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </HTMLTable>
+            </div>
             
             <div style={{ 
               padding: "12px 16px",
