@@ -3,6 +3,7 @@ import { useState,useEffect } from "react";
 import getPiPrice from "./Service/coingeckoService";
 import { uploadToCloudinary } from './Service/cloudinary';
 import { useUser,useAuth } from "@clerk/clerk-react";
+import { getApiUrl } from "../config";
 
 // Updated type for user information
 type UserInfo = {
@@ -102,26 +103,9 @@ const saveImg = (e: React.ChangeEvent<HTMLInputElement>) => {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //API to send data to backend
 const submitToBackend = async (data: TransactionData) => {
-  const response = await fetch('http://localhost:3000/api/transactions', {
+  const response = await fetch(getApiUrl('transactions'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -130,15 +114,6 @@ const submitToBackend = async (data: TransactionData) => {
   if (!response.ok) throw new Error('Transaction failed');
   return response.json();
 };
-
-
-
-
-
-
-
-
-
 
 
 //handle submit button
@@ -237,6 +212,10 @@ const handleSubmit = async () => {
     setBusy(false);
   }
 };
+
+
+
+
 
 
 

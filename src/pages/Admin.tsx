@@ -62,6 +62,9 @@ export const AppToaster = Toaster.create({
   maxToasts: 3,
 });
 
+// At the top of the file, add the import for getApiUrl
+import { getApiUrl } from "../config";
+
 export const Admin = () => {
   // --- State ---
   const [selected, setSelected] = useState<"Dashboard" | "Orders" | "Users">("Dashboard");
@@ -88,7 +91,7 @@ export const Admin = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const txRes = await fetch("http://localhost:3000/api/transactions");
+      const txRes = await fetch(getApiUrl("transactions"));
       const txData: Transaction[] = await txRes.json();
       setTransactions(txData);
       // Calculate dashboard stats
@@ -150,7 +153,7 @@ export const Admin = () => {
       console.log('Updating transaction:', { txId, newStatus }); // Debug log
       
       // First update in the database
-      const response = await fetch(`http://localhost:3000/api/transactions/${txId}/status`, {
+      const response = await fetch(getApiUrl(`transactions/${txId}/status`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1553,7 +1556,7 @@ export const Admin = () => {
       // Delete image from Cloudinary first if it exists
       if (order.imageUrl) {
         try {
-          await fetch("http://localhost:3000/api/cloudinary/delete", {
+          await fetch(getApiUrl("cloudinary/delete"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -1567,7 +1570,7 @@ export const Admin = () => {
       }
 
       // Delete order from database
-      await fetch(`http://localhost:3000/api/transactions/${order._id}`, {
+      await fetch(getApiUrl(`transactions/${order._id}`), {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
@@ -1657,7 +1660,7 @@ export const Admin = () => {
       for (const order of userOrders) {
         if (order.imageUrl) {
           try {
-            await fetch("http://localhost:3000/api/cloudinary/delete", {
+            await fetch(getApiUrl("cloudinary/delete"), {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -1672,7 +1675,7 @@ export const Admin = () => {
       }
 
       // Delete all orders for this user
-      await fetch(`http://localhost:3000/api/transactions/user/${user.id}`, {
+      await fetch(getApiUrl(`transactions/user/${user.id}`), {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`

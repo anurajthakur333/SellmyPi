@@ -15,6 +15,7 @@ import {
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useState, useEffect } from "react";
 import { Pi } from "lucide-react";
+import { getApiUrl } from "../config";
 
 // Type for a single transaction
 type Transaction = {
@@ -56,7 +57,7 @@ export const Dashboard = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/api/transactions/${user.id}`);
+      const response = await fetch(getApiUrl(`transactions/${user.id}`));
       if (!response.ok) throw new Error("Failed to fetch transactions");
 
       const data = await response.json();
@@ -111,15 +112,13 @@ export const Dashboard = () => {
           display: "flex", 
           justifyContent: "space-between", 
           alignItems: "center",
-          padding: "8px 0"
         }}>
           <div>
             <H1 style={{ 
               margin: 0, 
-              fontSize: "24px",
               color: Colors.DARK_GRAY1 
             }}>
-              Transaction History
+              Transactions
             </H1>
             <p style={{ 
               margin: "4px 0 0 0",
@@ -243,7 +242,7 @@ export const Dashboard = () => {
                             display: "flex", 
                             alignItems: "center", 
                             gap: "4px",
-                            fontSize: windowWidth <= 600 ? "12px" : "inherit"
+                            fontSize: windowWidth <= 600 ? "13px" : "inherit"
                           }}>
                             <span style={{ whiteSpace: "nowrap" }}>
                               1π = ${windowWidth <= 500 ? 
@@ -255,7 +254,7 @@ export const Dashboard = () => {
                             display: "flex", 
                             alignItems: "center", 
                             gap: "4px",
-                            fontSize: windowWidth <= 600 ? "12px" : "inherit"
+                            fontSize: windowWidth <= 600 ? "13px" : "inherit"
                           }}>
                             <span style={{ whiteSpace: "nowrap" }}>
                               1π = ₹{windowWidth <= 500 ? 
