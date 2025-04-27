@@ -123,15 +123,10 @@ export const Dashboard = () => {
           </div>
           {isSignedIn && (
             <Button
-              small
-              text="Refresh"
+              intent="primary"
               icon="refresh"
               onClick={fetchUserTransactions}
               loading={loading}
-              style={{
-                padding: "8px 16px",
-                height: "24px"
-              }}
             />
           )}
         </div>
