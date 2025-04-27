@@ -5,7 +5,7 @@ export const Home = () => {
     <div className="page-container">
       <Card>
         <H1>Home</H1>
-        <p>This is the home page of our Blueprint UI demo application.</p>
+        <p>Welcome to SellmyPi</p>
       </Card>
     </div>
   )

@@ -286,7 +286,7 @@ return (
 
 <FormGroup label="Upload Payment Screenshot">
   <FileInput 
-    text={busy ? "⏳ Uploading..." : !isSignedIn ? "🔒 Sign in" : "📸 Select Image"}
+    text={busy ? "⏳ Uploading..." : !isSignedIn ? "🔒 Sign in" : "Select Image"}
     onInputChange={saveImg}
     disabled={busy || !isSignedIn}
     inputProps={{
