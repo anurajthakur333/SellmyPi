@@ -98,6 +98,7 @@ const saveImg = (e: React.ChangeEvent<HTMLInputElement>) => {
   const preview = URL.createObjectURL(file);
   setPreviewUrl(preview);
   setSelectedFile(file);
+  // No uploading to Cloudinary here, just saving file for later
 };
 
 
@@ -167,10 +168,23 @@ const handleSubmit = async () => {
     return;
   }
 
+
+  // Validate UPI ID format
+  const upiRegex = /^[\w.-]{2,}@[a-zA-Z]{3,}$/;
+  if (!upiRegex.test(upi)) {
+    AppToaster.show({
+      message: "Invalid UPI ID format",
+      intent: "danger",
+      icon: "error",
+      timeout: 3000
+    });
+    return;
+  }
+
   try {
     setBusy(true);
 
-    // Upload image to Cloudinary first
+    // Only upload to Cloudinary when the Submit button is clicked
     const imageUrl = await uploadToCloudinary(selectedFile);
 
     // Create user info object with all relevant user data
@@ -263,7 +277,12 @@ return (
 
 {/* Pi Network Crypto amount*/}
 <FormGroup label="Enter Pi Amount" labelInfo="(required)">
-  <NumericInput value={amount} onValueChange={setAmount} min={0} style={{ width: "200px" }}/>
+  <NumericInput 
+    value={amount} 
+    onValueChange={(valueAsNumber) => setAmount(Math.min(valueAsNumber, 31415926))} 
+    min={0} 
+    style={{ width: "200px" }}
+  />
   {amount > 0 && (
 <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
   <Button>USD: ${(amount * Number(piCoin.usd)).toFixed(2)}</Button>
@@ -276,7 +295,13 @@ return (
 {/* upi fill input */}
 
 <FormGroup label="UPI" labelInfo="(required)">
-  <InputGroup placeholder="UPI ID" leftIcon="credit-card" value={upi} onValueChange={setUpi} style={{ maxWidth: "200px" }}/>
+  <InputGroup 
+    placeholder="UPI ID" 
+    leftIcon="credit-card" 
+    value={upi} 
+    onValueChange={(e) => setUpi(e.slice(0, 40))} 
+    style={{ maxWidth: "200px" }}
+  />
 </FormGroup>
 
 
@@ -286,7 +311,7 @@ return (
 
 <FormGroup label="Upload Payment Screenshot">
   <FileInput 
-    text={busy ? "⏳ Uploading..." : !isSignedIn ? "🔒 Sign in" : "Select Image"}
+    text={busy ? "Uploading..." : !isSignedIn ? "🔒 Sign in" : "Select Image"}
     onInputChange={saveImg}
     disabled={busy || !isSignedIn}
     inputProps={{

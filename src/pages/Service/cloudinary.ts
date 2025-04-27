@@ -5,6 +5,26 @@ const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME; // Cloudinary acc
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_PRESET;  // Cloudinary upload preset
 
 /**
+ * Prepares a file for upload to Cloudinary but doesn't actually upload it.
+ * Instead, returns a FormData object that can be used later for upload.
+ * @param imageFile - The image file to prepare for upload
+ * @returns FormData object ready for upload
+ * @throws Error if configuration is missing
+ */
+export const prepareForCloudinaryUpload = (imageFile: File): FormData => {
+  if (!CLOUD_NAME || !UPLOAD_PRESET) {
+    throw new Error('Cloudinary configuration missing. Check your .env file.');
+  }
+
+  const formData = new FormData();
+  formData.append('file', imageFile);
+  formData.append('upload_preset', UPLOAD_PRESET);
+  formData.append('cloud_name', CLOUD_NAME);
+  
+  return formData;
+};
+
+/**
  * Uploads an image file to Cloudinary and returns the secure URL.
  * @param imageFile - The image file to upload
  * @returns The secure URL of the uploaded image
@@ -15,10 +35,7 @@ export const uploadToCloudinary = async (imageFile: File): Promise<string> => {
     throw new Error('Cloudinary configuration missing. Check your .env file.');
   }
 
-  const formData = new FormData();
-  formData.append('file', imageFile);
-  formData.append('upload_preset', UPLOAD_PRESET);
-  formData.append('cloud_name', CLOUD_NAME);
+  const formData = prepareForCloudinaryUpload(imageFile);
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
