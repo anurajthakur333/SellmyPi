@@ -38,6 +38,14 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Track window resize for responsive behavior
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fetch user's transactions from backend API
   const fetchUserTransactions = async () => {
@@ -162,7 +170,7 @@ export const Dashboard = () => {
                     <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Date</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Amount</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Value</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Rate</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Sell Rate</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>UPI ID</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Status</th>
                     <th style={{ padding: "12px 16px", fontWeight: 600, color: Colors.DARK_GRAY1 }}>Proof</th>
@@ -173,18 +181,33 @@ export const Dashboard = () => {
                     <tr key={transaction._id}>
                       <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
                         <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontWeight: 500, color: Colors.DARK_GRAY1 }}>
-                            {new Date(transaction.createdAt).toLocaleDateString("en-US", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric"
-                            })}
+                          <span style={{ 
+                            fontWeight: 500, 
+                            color: Colors.DARK_GRAY1,
+                            fontSize: windowWidth <= 600 ? "12px" : "inherit" 
+                          }}>
+                            {windowWidth <= 500 ? 
+                              new Date(transaction.createdAt).toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "2-digit"
+                              }) :
+                              new Date(transaction.createdAt).toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric"
+                              })
+                            }
                           </span>
-                          <span style={{ color: Colors.GRAY1, fontSize: "12px", marginTop: "2px" }}>
+                          <span style={{ 
+                            color: Colors.GRAY1, 
+                            fontSize: windowWidth <= 600 ? "10px" : "12px", 
+                            marginTop: "2px" 
+                          }}>
                             {new Date(transaction.createdAt).toLocaleTimeString("en-US", {
                               hour: "2-digit",
                               minute: "2-digit",
-                              hour12: true
+                              hour12: windowWidth > 500
                             })}
                           </span>
                         </div>
@@ -198,32 +221,53 @@ export const Dashboard = () => {
                       </td>
 
                       <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px"}}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px"}}>
                             <Icon icon="dollar" size={12} color={Colors.GREEN3} />
                             <span>{transaction.usdValue}</span>
                           </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px"}}>
                             <span style={{ color: Colors.GREEN3, fontSize: "14px", fontWeight: 500 }}>₹</span>
                             <span>{transaction.inrValue}</span>
                           </div>
                         </div>
                       </td>
 
-                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "4px", color: Colors.GRAY1 }}>
-                            1π = ${transaction.SellRateUsd}
+                      <td style={{ padding: windowWidth <= 600 ? "8px 10px" : "12px 16px", verticalAlign: "middle" }}>
+                        <div style={{ 
+                          display: "flex", 
+                          flexDirection: "column", 
+                          gap: windowWidth <= 500 ? "2px" : "4px"
+                        }}>
+                          <div style={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            gap: "4px",
+                            fontSize: windowWidth <= 600 ? "12px" : "inherit"
+                          }}>
+                            <span style={{ whiteSpace: "nowrap" }}>
+                              1π = ${windowWidth <= 500 ? 
+                                Number(transaction.SellRateUsd).toFixed(4) : 
+                                transaction.SellRateUsd}
+                            </span>
                           </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "4px", color: Colors.GRAY1 }}>
-                            1π = ₹{transaction.SellRateInr}
+                          <div style={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            gap: "4px",
+                            fontSize: windowWidth <= 600 ? "12px" : "inherit"
+                          }}>
+                            <span style={{ whiteSpace: "nowrap" }}>
+                              1π = ₹{windowWidth <= 500 ? 
+                                Number(transaction.SellRateInr).toFixed(2) : 
+                                transaction.SellRateInr}
+                            </span>
                           </div>
                         </div>
                       </td>
 
                       <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <Icon icon="credit-card" size={12} />
                           <span>{transaction.upiId}</span>
                         </div>
                       </td>
@@ -234,7 +278,6 @@ export const Dashboard = () => {
 
                       <td style={{ padding: "12px 16px", verticalAlign: "middle", textAlign: "center"}}>
                         <Button
-                          minimal
                           intent={Intent.PRIMARY}
                           style={{ 
                             padding: "4px 8px",
@@ -247,7 +290,9 @@ export const Dashboard = () => {
                           onClick={() => window.open(transaction.imageUrl, "_blank")}
                         >
                           <Icon icon="document-open" size={14} />
-                          <span style={{ fontSize: "12px" }}> View</span>
+                          {windowWidth > 800 && (
+                            <span style={{ fontSize: "12px" }}> View</span>
+                          )}
                         </Button>
                       </td>
                     </tr>
