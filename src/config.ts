@@ -9,7 +9,7 @@
 // In production, this should be set to your actual API domain
 export const API_URL = import.meta.env.VITE_API_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://api.sellmypi.com' // Replace with your actual production API URL
+    ? 'https://backend-production-a538.up.railway.app/' // Replace with your actual production API URL
     : 'http://localhost:3000');
 
 /**
