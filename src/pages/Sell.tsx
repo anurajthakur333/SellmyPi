@@ -1,4 +1,4 @@
-import { Card, H1, InputGroup, FileInput, FormGroup, Button, NumericInput,Toaster, Intent} from "@blueprintjs/core"
+import { Card, H1, InputGroup, FileInput, FormGroup, Button, NumericInput,Toaster, Intent, Position} from "@blueprintjs/core"
 import { useState,useEffect } from "react";
 import getPiPrice from "./Service/coingeckoService";
 import { uploadToCloudinary } from './Service/cloudinary';
@@ -26,7 +26,9 @@ type TransactionData = {
 };
 
 // Sell page all toasters
-const AppToaster = Toaster.create();
+const AppToaster = Toaster.create({
+  position: Position.BOTTOM,
+});
 
 export const Sell = () => {
 
@@ -56,7 +58,7 @@ useEffect(() => {
 // Calculate amount
 // amount stores how many Pi coins user wants to sell
 // setAmount is used to update this number when user types
-const [amount, setAmount] = useState(0);
+const [amount, setAmount] = useState(1);
 
 
  // Create storage for UPI ID
@@ -186,7 +188,7 @@ const handleSubmit = async () => {
     await submitToBackend(transactionData);
 
     // Reset all form fields
-    setAmount(0);
+    setAmount(1);
     setUpi('');
     setSelectedFile(null);
     setPreviewUrl('');
@@ -258,15 +260,15 @@ return (
 <FormGroup label="Enter Pi Amount" labelInfo="(required)">
   <NumericInput 
     value={amount} 
-    onValueChange={(valueAsNumber) => setAmount(Math.min(valueAsNumber, 31415926))} 
-    min={0} 
+    onValueChange={(valueAsNumber) => setAmount(Math.max(1, Math.min(valueAsNumber, 31415926)))} 
+    min={1} 
     style={{ width: "200px" }}
   />
   {amount > 0 && (
-<div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-  <Button>USD: ${(amount * Number(piCoin.usd)).toFixed(2)}</Button>
-  <Button>INR: ₹{(amount * Number(piCoin.inr)).toFixed(2)}</Button>
-</div>
+    <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+      <Button>USD: ${(amount * Number(piCoin.usd)).toFixed(2)}</Button>
+      <Button>INR: ₹{(amount * Number(piCoin.inr)).toFixed(2)}</Button>
+    </div>
   )}
 </FormGroup>
 
