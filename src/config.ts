@@ -9,7 +9,7 @@
 // In production, this should be set to your actual API domain
 export const API_URL = import.meta.env.VITE_API_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://backend-production-a538.up.railway.app/' // Replace with your actual production API URL
+    ? 'https://backend-production-a538.up.railway.app' // Railway backend URL
     : 'http://localhost:3000');
 
 /**
@@ -18,7 +18,15 @@ export const API_URL = import.meta.env.VITE_API_URL ||
  * @returns Full API URL
  */
 export const getApiUrl = (path: string): string => {
-  return `${API_URL}/api/${path}`;
+  // Ensure API_URL is treated as an absolute URL
+  let baseUrl = API_URL;
+  
+  // Check if the URL already has a protocol (http:// or https://)
+  if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+    baseUrl = 'https://' + baseUrl;
+  }
+  
+  return `${baseUrl}/api/${path}`;
 };
 
 // Export other configuration variables as needed
