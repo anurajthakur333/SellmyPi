@@ -31,11 +31,8 @@ const isAdmin = user?.publicMetadata?.role === 'admin';
             <Button text="Home" intent={Intent.PRIMARY} onClick={() => Navigate('/')} />
             <Button text="Sell" intent={Intent.DANGER} onClick={() => Navigate('/sell')} />
             <Button text="Dashboard" intent={Intent.SUCCESS} onClick={() => Navigate('/Dashboard')} />
-                {isAdmin && isSignedIn && (
-            <Button text="Admin" intent={Intent.WARNING} onClick={() => Navigate('/Admin')} />
-                )}
         </ButtonGroup>
-</NavbarGroup>
+    </NavbarGroup>
 
 {/* this the check if the user is loged in or not to display sign in and sign up button or profile picture and name */}
 {!isSignedIn ? (
@@ -53,7 +50,9 @@ const isAdmin = user?.publicMetadata?.role === 'admin';
 <NavbarGroup align={Alignment.RIGHT} style={{gap: '8px'}}>
     <Button 
       text={user?.fullName}
-     className="readonly"
+      className="readonly"
+      onClick={isAdmin ? () => Navigate('/Admin') : undefined}
+      style={isAdmin ? { cursor: 'pointer' } : {}}
     />
     <UserButton afterSignOutUrl="/" />
 </NavbarGroup>

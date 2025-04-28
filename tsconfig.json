@@ -1,7 +1,13 @@
 {
+  // No files to compile directly in this config (it's a project reference setup)
   "files": [],
+  
+  /* Project References - Split configuration for different environments */
   "references": [
+    // Main app configuration (for browser code)
     { "path": "./tsconfig.app.json" },
+    
+    // Node.js configuration (for server/build tooling)
     { "path": "./tsconfig.node.json" }
   ]
 }

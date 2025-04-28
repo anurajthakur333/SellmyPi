@@ -1,24 +1,42 @@
 {
   "compilerOptions": {
+    // Where to store TypeScript's build info cache
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    
+    // Use modern JavaScript features (ES2022 standard)
     "target": "ES2022",
+    // Extra features available (ES2023 additions)
     "lib": ["ES2023"],
+    // Keep modern module syntax for bundlers
     "module": "ESNext",
+    // Skip checking all library files (faster builds)
     "skipLibCheck": true,
 
-    /* Bundler mode */
+    /* Bundler mode - Optimized for Vite/Rollup */
+    // How to find imported files
     "moduleResolution": "bundler",
+    // Allow importing .ts files directly
     "allowImportingTsExtensions": true,
+    // Treat each file as independent (better for bundlers)
     "isolatedModules": true,
+    // Always detect files as modules
     "moduleDetection": "force",
+    // Don't output JS files (Vite handles this)
     "noEmit": true,
 
-    /* Linting */
+    /* Linting - Keeps your code clean */
+    // Enable all strict type checking
     "strict": true,
+    // Error on unused variables
     "noUnusedLocals": true,
+    // Error on unused function parameters
     "noUnusedParameters": true,
+    // Warn about missing switch case breaks
     "noFallthroughCasesInSwitch": true,
+    // Check imported packages for side effects
     "noUncheckedSideEffectImports": true
   },
+  
+  // Only check this specific config file
   "include": ["vite.config.ts"]
 }
