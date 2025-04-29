@@ -1,15 +1,19 @@
 // Link to get Pi coin prices
 const URL = 'https://api.coingecko.com/api/v3/simple/price?ids=pi-network&vs_currencies=usd,inr'
 
-// Get USD and INR prices
+// Get USD and INR prices with reduced values
 const getPiPrice = async () => {
   const data = await (await fetch(URL)).json()
 
-  // Show price with 4 numbers after dot (like 1.2345)
+  // Reduce prices to show lower values
+  const reducedInr = data['pi-network'].inr * 0.5; // Reduce to 10% of original price
+  const reducedUsd = data['pi-network'].usd * 0.5; // Reduce to 10% of original price
+
   return {
-    usd: data['pi-network'].usd.toFixed(4),
-    inr: data['pi-network'].inr.toFixed(4)
+    usd: reducedUsd.toFixed(4),
+    inr: reducedInr.toFixed(4)
   }
 }
+
 // Make getPiPrice available to use in other files
 export default getPiPrice
