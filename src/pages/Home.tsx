@@ -45,7 +45,7 @@ export const Home = () => {
             value={walletAddress}
             readOnly
             rightElement={
-              <Button icon="duplicate" onClick={handleCopy}/>
+              <Button icon="duplicate" minimal onClick={handleCopy}/>
             }
           />
         </div>
