@@ -260,7 +260,7 @@ return (
 <FormGroup label="Enter Pi Amount" labelInfo="(required)">
   <NumericInput 
     value={amount} 
-    onValueChange={(valueAsNumber) => setAmount(Math.max(1, Math.min(valueAsNumber, 31415926)))} 
+    onValueChange={(valueAsNumber) => setAmount(valueAsNumber)} 
     min={1} 
     style={{ width: "200px" }}
   />
